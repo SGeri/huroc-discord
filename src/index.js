@@ -65,9 +65,6 @@ setInterval(async () => {
       if (responses.length <= 0) {
         responses.push(currentResponse);
       } else {
-        console.log(
-          compareResponses(responses[responses.length - 1], currentResponse)
-        );
         if (
           !compareResponses(responses[responses.length - 1], currentResponse)
         ) {
@@ -96,7 +93,6 @@ setInterval(async () => {
       if (responses2.length <= 0) {
         responses2.push(currentResponse2);
       } else {
-        console.log(responses2[responses2.length - 1] === currentResponse2);
         if (!responses2[responses2.length - 1] === currentResponse2) {
           sendServiceNotification2();
         }
