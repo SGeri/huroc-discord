@@ -1,4 +1,5 @@
 const { Client } = require("discord.js");
+const axios = require("axios");
 
 require("dotenv").config();
 
@@ -51,3 +52,63 @@ client.on("message", async (message) => {
 });
 
 client.login(process.env.TOKEN);
+
+let responses = [];
+let currentResponse = null;
+
+setInterval(async () => {
+  await axios
+    .get("https://support.rockstargames.com/services/status.json")
+    //.get("https://huroc.com/teszt.json")
+    .then((response) => {
+      currentResponse = response.data;
+
+      if (responses.length <= 0) {
+        responses.push(currentResponse);
+      } else {
+        console.log(
+          compareResponses(responses[responses.length - 1], currentResponse)
+        );
+
+        if (
+          !compareResponses(responses[responses.length - 1], currentResponse)
+        ) {
+          sendServiceNotification();
+        }
+
+        responses.push(currentResponse);
+      }
+    })
+    .catch((error) => {
+      prevResponse = [];
+      currentResponse = null;
+      console.log("Error while fetching data from Rockstar: " + error);
+    });
+}, 5000);
+
+function compareResponses(a, b) {
+  var aProps = Object.getOwnPropertyNames(a);
+  var bProps = Object.getOwnPropertyNames(b);
+
+  if (aProps.length != bProps.length) {
+    return false;
+  }
+
+  for (var i = 0; i < aProps.length; i++) {
+    var propName = aProps[i];
+
+    if (a[propName] !== b[propName]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function sendServiceNotification() {
+  const notifChannel = client.channels.cache.get("730436965412896798");
+
+  notifChannel.send(
+    "<@452863075859693568>, szerver státusz változás érzékelve!\nhttps://support.rockstargames.com/servicestatus"
+  );
+}
