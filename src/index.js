@@ -59,7 +59,6 @@ let currentResponse = null;
 setInterval(async () => {
   await axios
     .get("https://support.rockstargames.com/services/status.json")
-    //.get("https://huroc.com/teszt.json")
     .then((response) => {
       currentResponse = response.data;
 
@@ -69,7 +68,6 @@ setInterval(async () => {
         console.log(
           compareResponses(responses[responses.length - 1], currentResponse)
         );
-
         if (
           !compareResponses(responses[responses.length - 1], currentResponse)
         ) {
@@ -86,23 +84,68 @@ setInterval(async () => {
     });
 }, 5000);
 
-function compareResponses(a, b) {
-  var aProps = Object.getOwnPropertyNames(a);
-  var bProps = Object.getOwnPropertyNames(b);
+let responses2 = [];
+let currentResponse2 = null;
 
-  if (aProps.length != bProps.length) {
+setInterval(async () => {
+  await axios
+    .get("https://www.rockstargames.com/newswire")
+    .then((response) => {
+      currentResponse2 = response.data;
+
+      if (responses2.length <= 0) {
+        responses2.push(currentResponse2);
+      } else {
+        console.log(responses2[responses2.length - 1] === currentResponse2);
+        if (!responses2[responses2.length - 1] === currentResponse2) {
+          sendServiceNotification2();
+        }
+
+        responses2.push(currentResponse2);
+      }
+    })
+    .catch((error) => {
+      prevResponse2 = [];
+      currentResponse2 = null;
+      console.log("Error while fetching data from Rockstar: " + error);
+    });
+}, 5000);
+
+function compareResponses(response, model) {
+  if (response == "" && model == "") {
     return false;
   }
 
-  for (var i = 0; i < aProps.length; i++) {
-    var propName = aProps[i];
-
-    if (a[propName] !== b[propName]) {
-      return false;
-    }
+  if (typeof response != "object" && typeof model != "object") {
+    var response = JSON.parse(response);
+    var model = JSON.parse(model);
   }
 
-  return true;
+  if (typeof response != typeof model) {
+    return false;
+  } else {
+    switch (Object.prototype.toString.call(model)) {
+      case "[object]":
+        var x;
+        var mKeys = Object.keys(model);
+        for (x in mKeys) {
+          return compareObjects(
+            Object.keys(model)[x],
+            Object.keys(response)[x]
+          );
+        }
+        break;
+
+      case "[object Array]":
+        return compareObjects(model[0], response[0]);
+
+      case "[object String]":
+        return model == response;
+
+      default:
+        return true;
+    }
+  }
 }
 
 function sendServiceNotification() {
@@ -110,5 +153,13 @@ function sendServiceNotification() {
 
   notifChannel.send(
     "<@452863075859693568>, szerver státusz változás érzékelve!\nhttps://support.rockstargames.com/servicestatus"
+  );
+}
+
+function sendServiceNotification2() {
+  const notifChannel = client.channels.cache.get("730436965412896798");
+
+  notifChannel.send(
+    "<@452863075859693568>, rockstar newswire változás érzékelve!\nhttps://www.rockstargames.com/newswire"
   );
 }
