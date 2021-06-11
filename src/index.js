@@ -1,4 +1,5 @@
 const { Client } = require("discord.js");
+const bcrypt = require("bcrypt");
 const axios = require("axios");
 
 require("dotenv").config();
@@ -86,7 +87,9 @@ let currentResponse2 = null;
 
 setInterval(async () => {
   await axios
-    .get("https://www.rockstargames.com/newswire")
+    .get(
+      `https://graph.rockstargames.com/?operationName=NewswireList&variables=%7B"tagId"%3Anull%2C"page"%3A1%2C"metaUrl"%3A"%2Fnewswire"%2C"locale"%3A"en_us"%7D&extensions=%7B"persistedQuery"%3A%7B"version"%3A1%2C"sha256Hash"%3A"6db141c67f6a6ada95514a5d7e644c48a0c71033366d21ffff37fadcbb6e7d1e"%7D%7D`
+    )
     .then((response) => {
       currentResponse2 = response.data;
 
