@@ -57,8 +57,6 @@ setInterval(async () => {
     .get("http://88.151.99.76:3000/get_title")
     .then((response) => {
       currentResponse = response.data;
-      console.log(currentResponse);
-      console.log(responses);
 
       if (responses.length <= 0) {
         responses.push(currentResponse);
