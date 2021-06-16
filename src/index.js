@@ -51,15 +51,20 @@ let responses = [];
 let currentResponse = null;
 
 setInterval(async () => {
+  // rockstar: https://support.rockstargames.com/services/status.json
+  // huroc: http://88.151.99.76:3000/get_title
   await axios
-    .get("https://support.rockstargames.com/services/status.json")
+    .get("http://88.151.99.76:3000/get_title")
     .then((response) => {
-      currentResponse = JSON.stringify(response.data);
+      currentResponse = response.data;
+      console.log(currentResponse);
+      console.log(responses);
 
       if (responses.length <= 0) {
         responses.push(currentResponse);
       } else {
-        if (responses[responses.length - 1] == currentResponse) {
+        console.log(responses[responses.length - 1] == currentResponse);
+        if (responses[responses.length - 1] != currentResponse) {
           sendServiceNotification();
         }
 
