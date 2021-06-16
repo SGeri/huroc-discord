@@ -1,5 +1,4 @@
 const { Client } = require("discord.js");
-const bcrypt = require("bcrypt");
 const axios = require("axios");
 
 require("dotenv").config();
@@ -61,14 +60,12 @@ setInterval(async () => {
   await axios
     .get("https://support.rockstargames.com/services/status.json")
     .then((response) => {
-      currentResponse = response.data;
+      currentResponse = JSON.stringify(response.data);
 
       if (responses.length <= 0) {
         responses.push(currentResponse);
       } else {
-        if (
-          !compareResponses(responses[responses.length - 1], currentResponse)
-        ) {
+        if (responses[responses.length - 1] == currentResponse) {
           sendServiceNotification();
         }
 
